@@ -18,6 +18,10 @@ unu Scooter Pro batteries have NFC chips in them to allow the battery to communi
 
 This sketch unlocks the high current path by telling the battery that it is inside the scooter and the seatbox is closed. At that point, the battery will allow drawing the full voltage and current on the discharge path, or accept charge. Note that you will not get the LED strip animation, because the battery thinks it's inside the closed seatbox. See the `battery-charger` sketch for that.
 
+## Hardware notes
+
+This sketch should work out of the box for "true" Arduinos. For faster devices such as ESP8266 or ESP32, you will need to patch your Adafruit PN532 library to be slower. Change line 336 of Adafruit_PN532.cpp to always run `delay(SLOWDOWN);`, otherwise the bits won't have a chance to travel before the Adafruit library nags the chip about a response.
+
 ## Sequence diagram
 
 ```mermaid
