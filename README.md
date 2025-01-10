@@ -63,13 +63,23 @@ Both implementations utilize NFC communication to manage the battery's state:
 
 ### Battery Memory Structure
 
-Key memory pages for battery interaction:
-- 0xC0: Voltage and current readings
-- 0xC1: Available current and charge status
-- 0xC2: Capacity and fault information
-- 0xC3: Temperature and health data
-- 0xC4: Battery state
-- 0xCC: Command interface
+The battery has an EEPROM (888 bytes) with limited writes, and a 64-byte SRAM with unlimited writes.
+The SRAM is mapped to NFC pages:
+
+| NFC Page | Byte 0-3 | Description |
+|----------|----------|-------------|
+| 0xC0 | voltage (uint16_t, 0-65535 mV) + current (int16_t, -32.768-32.767 A) | Battery voltage and current measurements |
+| 0xC1 | availableCurrent (uint16_t, 0-65535 mA) + remainingCharge (uint16_t, 0-65535 mAh) | Available current limit and remaining charge |
+| 0xC2 | fullCharge (uint16_t, 0-65535 mAh) + faultCode (uint16_t, 0-65535) | Total battery capacity and fault status |
+| 0xC3 | temperatureA (int8_t, -128-127°C) + temperatureB (int8_t, -128-127°C) + stateOfHealth (uint8_t, 0-100%) + unused (uint8_t) | Temperature sensors, health indicator |
+| 0xC4 | batteryState (enum: 0xA4983474=Sleep/0xB9164828=Idle/0xC6583518=Active) | Current battery operational state |
+| 0xC5-0xCB | Unknown/unused | Unused status message area? |
+| 0xCC | command/response (32-bit) | Communication buffer for commands and responses |
+| 0xCD | data[0-3] | Command additional data bytes 0-3 |
+| 0xCE | data[4-7] | Command additional data bytes 4-7 |
+| 0xCF | data[8-11] | Command additional data bytes 8-11 |
+
+Note: Each NFC page represents 4 bytes of the SRAM region, with the status message buffer spanning pages 0xC0-0xCB and the communication buffer occupying pages 0xCC-0xCF.
 
 ## Contributing
 
